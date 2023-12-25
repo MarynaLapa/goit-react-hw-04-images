@@ -1,26 +1,16 @@
-import { Component } from 'react';
 import css from './imageGallery.module.css'
 
-class ImageGalleryItem extends Component {
-
-    render() {
-        const { onClick, photoData } = this.props
-
-        return (
-            <>
-                <li className={css.ImageGalleryItem} onClick={()=> onClick(this.props.photoData.id)}>
-                    <img
-                        className={css.Image}
-                        src={photoData.webformatURL}
-                        alt={photoData.tags}
-                        id={photoData.id}
-                    />
-                </li>
-            
-            </>
-           
-        )
-    }
+const ImageGalleryItem = ({ onClick, photoData } ) => {
+    return (
+        <li className={css.ImageGalleryItem} onClick={()=> onClick(photoData.id)}>
+            <img
+                className={css.Image}
+                src={photoData.webformatURL}
+                alt={photoData.tags}
+                id={photoData.id}
+            />
+        </li>
+    )
 }
 
 

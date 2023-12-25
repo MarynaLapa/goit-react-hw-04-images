@@ -1,96 +1,78 @@
-import { Component } from "react";
 import ImageGallery from "./imageGallery/ImageGallery";
 import { getAllPhoto } from 'components/api/api'
-import Searchbar from "./searchbar/Searchbar";
 import Button from './Button/Button'
 import Modal from "./modal/Modal";
-import Loader from "./loder/Loader";
+import Loader from "./loader/Loader";
+import Searchbar from "./searchbar/Searchbar";
+import { useEffect, useState } from 'react'
 
-export class App extends Component {
+const App = () => {
 
-  state = {
-    photo: [],
-    error: '',
-    // search: null,
-    page: 1,
-    isShowModal: false,
-    totalPages: null,
-    id: null,
-    isLoading: false,
-  }
+  const [photo, setPhoto] = useState([])
+  const [error, setError] = useState('')
+  const [search, setSearch] = useState(null)
+  const [page, setPage] = useState(0)
+  const [isShowModal, setIsShowModal] = useState(false)
+  const [totalPages, setTotalPages] = useState(null)
+  const [id, setId] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.search !== this.state.search || prevState.page !== this.state.page) {
-      const { search, page } = this.state
-      this.getPhoto(search, page)
-    }
-  }
+  useEffect(() => {
+    if (!search) return
+    const getPhoto = async (search, page) => {
+      try {
 
-  getPhoto = async (search, page) => {
-    try {
+        setIsLoading(true)
+        setError('')
 
-      this.setState({
-        isLoading: true,
-      })
+        const { data } = await getAllPhoto(search, page)
 
-      const { data } = await getAllPhoto(search, page)
-      console.log(data)
-      if (data.hits.length === 0) {
-        alert('Sorry image not found...')
-        return
+        if (data.hits.length === 0) {
+          alert('Sorry image not found...')
+          return
+        }
+        setPhoto(prev => [...prev, ...data.hits])
+        setTotalPages(Math.ceil(data.totalHits / 12))
+        
+      } catch (error) {
+        setError(error.message)
+      } finally {
+          setIsLoading(false)
       }
-
-      this.setState(prevState => ({
-        photo: [...prevState.photo, ...data.hits],
-        totalPages: Math.ceil(data.totalHits / 12),
-      }))
-
-    } catch (error) {
-      this.setState({
-        error: error.message
-      })
-    } finally {
-      this.setState({
-        isLoading: false,
-      })
     }
-  }
+
+    getPhoto(search, page)
+  }, [page, search])
  
-  addSearch = (data) => {
-    return this.setState({
-      search: data.search,
-      photo: [],
-      page: data.page,
-    })
-  }
+  const addSearch = (name) => {
 
-  onLoadMoreButton = () => {
-    this.setState((prevState) => ({
-      page: prevState.page + 1,
-    }))
-  }
-
-  toggleModal = (id) => {
-        this.setState(({ isShowModal })=> ({
-          isShowModal: !isShowModal,
-          id: id,
-        })) 
-    
+    if (name && search === name) {
+      return alert(`You have already viewed this request!`)
     }
+    setSearch(name)
+    // setPhoto([])
+    setPage(1)
+  }
+
+  const onLoadMoreButton = () => {
+    setPage(prev => prev + 1)
+  }
+
+  const toggleModal = (id) => {
+    setIsShowModal(prev => !prev)
+    setId(id)    
+  }
   
-  render() {
-    const { photo, search, totalPages, page, isShowModal, id, isLoading, error } = this.state
-    const result = this.state.photo.find((el) => el.id === this.state.id)
-    
-    return (
+  const result = photo.find((el) => el.id === id)
+
+  return (
        <>
         <Searchbar
-          addSearch={this.addSearch}
-          value={search}
+          addSearch={addSearch}
         />
         {photo.length > 0 &&
           <ImageGallery
-            onClick={this.toggleModal}
+            onClick={toggleModal}
             photo={photo}
           />}
 
@@ -98,7 +80,7 @@ export class App extends Component {
           totalPages > page &&
           !isLoading &&
           <Button
-            onLoadMoreButton={this.onLoadMoreButton}
+            onLoadMoreButton={onLoadMoreButton}
             
           />}
 
@@ -106,7 +88,7 @@ export class App extends Component {
         {isShowModal &&
           id !== null &&
           <Modal
-            onClose={this.toggleModal}
+            onClose={toggleModal}
           >
             <img src={result.largeImageURL} alt={result.tag} />
           </Modal>}
@@ -119,7 +101,8 @@ export class App extends Component {
             {error}
           </h1>}
     </>
-  );
-  }
-  
-};
+  )
+}
+
+export default App
+
