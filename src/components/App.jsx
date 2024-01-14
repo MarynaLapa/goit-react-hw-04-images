@@ -10,15 +10,17 @@ const App = () => {
 
   const [photo, setPhoto] = useState([])
   const [error, setError] = useState('')
-  const [search, setSearch] = useState(null)
+  const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
   const [isShowModal, setIsShowModal] = useState(false)
   const [totalPages, setTotalPages] = useState(null)
-  const [id, setId] = useState(null)
+  const [img, setImg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  console.log('search :>> ', search);
   useEffect(() => {
     if (!search) return
+
     const getPhoto = async (search, page) => {
       try {
 
@@ -45,12 +47,12 @@ const App = () => {
   }, [page, search])
  
   const addSearch = (name) => {
-
-    if (name && search === name) {
+    setPhoto([])
+    if (search === name) {
       return alert(`You have already viewed this request!`)
     }
     setSearch(name)
-    // setPhoto([])
+    console.log('name', name)
     setPage(1)
   }
 
@@ -58,48 +60,35 @@ const App = () => {
     setPage(prev => prev + 1)
   }
 
-  const toggleModal = (id) => {
-    setIsShowModal(prev => !prev)
-    setId(id)    
+  const getLargeImg = img => {
+    setImg(img)
+    setIsShowModal(true)
+  }
+
+  const getCloseModal = () => {
+    setIsShowModal(false)
+    setImg('')
   }
   
-  const result = photo.find((el) => el.id === id)
-
   return (
        <>
-        <Searchbar
-          addSearch={addSearch}
-        />
+        <Searchbar addSearch={addSearch}/>
         {photo.length > 0 &&
-          <ImageGallery
-            onClick={toggleModal}
-            photo={photo}
-          />}
+          <ImageGallery onClick={getLargeImg} photo={photo}/>}
 
-        {photo.length !== 0 &&
-          totalPages > page &&
-          !isLoading &&
-          <Button
-            onLoadMoreButton={onLoadMoreButton}
-            
-          />}
+        {photo.length !== 0 && totalPages > page && !isLoading &&
+          <Button onLoadMoreButton={onLoadMoreButton} />}
 
         {isLoading && <Loader />}
         {isShowModal &&
-          id !== null &&
-          <Modal
-            onClose={toggleModal}
-          >
-            <img src={result.largeImageURL} alt={result.tag} />
+          <Modal onClose={getCloseModal}>
+            <img src={img.src} alt={img.alt} />
           </Modal>}
         
-        {error &&
-          <h1 style={{
-            textAlign: 'center',
-            fontSize: 48,
-          }}>
-            {error}
-          </h1>}
+      {error &&
+        <h1 style={{textAlign: 'center', fontSize: 48,}}>
+          {error}
+        </h1>}
     </>
   )
 }

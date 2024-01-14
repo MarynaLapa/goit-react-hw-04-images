@@ -8,7 +8,7 @@ const Searchbar = ({addSearch}) => {
   
   
   const handlerSearch = ({ target: { value } }) => {
-    setSearch(value.toLowerCase())    
+    setSearch(value.toLowerCase().trim())    
   }
 
   const handlerSubmit = (e) => {
@@ -19,7 +19,7 @@ const Searchbar = ({addSearch}) => {
 
   return (
     <header className={css.Searchbar}>
-      <form className={css.SearchForm} onClick={handlerSubmit}>
+      <form className={css.SearchForm} onSubmit={handlerSubmit}>
         <button
           type="submit"
           className={css.SearchFormButton}
@@ -30,9 +30,11 @@ const Searchbar = ({addSearch}) => {
         <input
           className={css.SearchFormInput}
           type="text"
+          name='search'
           autoComplete="off"
           onChange={handlerSearch}
           autoFocus
+          required
           placeholder="Search images and photos"
         />
       </form>

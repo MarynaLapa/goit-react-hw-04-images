@@ -7,6 +7,7 @@ const Modal = ({ onClose, children}) => {
     const handlerClick = useCallback((e) => {
         if (e.code === 'Escape') onClose();
         if (e.currentTarget === e.target) onClose();
+        // e.stopPropagation();
     }, [onClose])
 
     useEffect(() => {
