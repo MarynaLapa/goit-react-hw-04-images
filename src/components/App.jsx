@@ -47,10 +47,10 @@ const App = () => {
   }, [page, search])
  
   const addSearch = (name) => {
-    setPhoto([])
     if (search === name) {
       return alert(`You have already viewed this request!`)
     }
+    setPhoto([])
     setSearch(name)
     console.log('name', name)
     setPage(1)
